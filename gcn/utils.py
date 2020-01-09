@@ -14,7 +14,7 @@ def parse_index_file(filename):
     return index
 
 
-def sample_mask(idx, l):
+def sample_mask(idx, l):   ###### lets think about it layer!! what is mask and why do we need it! 
     """Create mask."""
     mask = np.zeros(l)
     mask[idx] = 1
@@ -116,7 +116,7 @@ def preprocess_features(features):
     r_inv[np.isinf(r_inv)] = 0.
     r_mat_inv = sp.diags(r_inv)
     features = r_mat_inv.dot(features)
-    return sparse_to_tuple(features)
+    return sparse_to_tuple(features) ### why our features are sparse???? 
 
 
 def normalize_adj(adj):
@@ -126,7 +126,7 @@ def normalize_adj(adj):
     d_inv_sqrt = np.power(rowsum, -0.5).flatten()
     d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
     d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
-    return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).tocoo()
+    return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).tocoo() ### I think it should be of size N*N
 
 
 def preprocess_adj(adj):
