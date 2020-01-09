@@ -121,7 +121,7 @@ class MLP(Model):
         self.layers.append(Dense(input_dim=FLAGS.hidden1,
                                  output_dim=self.output_dim,
                                  placeholders=self.placeholders,
-                                 act=lambda x: x, #### what is this???
+                                 act=lambda x: x, #### this is linear activation! it means no function is applied on X
                                  dropout=True,
                                  logging=self.logging))
 
