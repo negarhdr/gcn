@@ -99,7 +99,7 @@ class MLP(Model):
     def _loss(self):
         # Weight decay loss
         for var in self.layers[0].vars.values():
-            self.loss += FLAGS.weight_decay * tf.nn.l2_loss(var)
+            self.loss += FLAGS.weight_decay * tf.nn.l2_loss(var) ### what is this__
 
         # Cross entropy error
         self.loss += masked_softmax_cross_entropy(self.outputs, self.placeholders['labels'],
@@ -121,7 +121,7 @@ class MLP(Model):
         self.layers.append(Dense(input_dim=FLAGS.hidden1,
                                  output_dim=self.output_dim,
                                  placeholders=self.placeholders,
-                                 act=lambda x: x,
+                                 act=lambda x: x, #### what is this???
                                  dropout=True,
                                  logging=self.logging))
 
