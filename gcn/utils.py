@@ -65,7 +65,7 @@ def load_data(dataset_str):
         ty_extended[test_idx_range-min(test_idx_range), :] = ty
         ty = ty_extended
 
-    features = sp.vstack((allx, tx)).tolil()
+    features = sp.vstack((allx, tx)).tolil() # convert it to list of lists! features dim: the number of samples * the number of full dimensions! but the matrix is sparse so most of the elements of dims are zero! each list is a vector of indexes which indicates the indices of nonzero columns! so I still don't know the input_dim and what is features[2][1]
     features[test_idx_reorder, :] = features[test_idx_range, :] #### I don't understand it at all!!!! it is changing the order
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
 
@@ -73,8 +73,8 @@ def load_data(dataset_str):
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
     idx_test = test_idx_range.tolist()
-    idx_train = range(len(y))#### just len(y) ??? it is random!!! how to we know the exact index???
-    idx_val = range(len(y), len(y)+500) ### why 500???
+    idx_train = range(len(y))#### allx is both the labeled train data (a part of it is in x) and unlabeled training data! the first rows of allx are x! the number of labeled training data is len(y)! so from index 0 to len(y) we have labeled training data! 
+    idx_val = range(len(y), len(y)+500) #### we have 500 validation data! the 500 from the rest of labeled data are validation! 
 
     train_mask = sample_mask(idx_train, labels.shape[0])
     val_mask = sample_mask(idx_val, labels.shape[0])
@@ -116,7 +116,7 @@ def preprocess_features(features):
     r_inv[np.isinf(r_inv)] = 0.
     r_mat_inv = sp.diags(r_inv)
     features = r_mat_inv.dot(features)
-    return sparse_to_tuple(features) ### why our features are sparse???? 
+    return sparse_to_tuple(features)  
 
 
 def normalize_adj(adj):
