@@ -26,7 +26,16 @@ flags.DEFINE_integer('early_stopping', 10, 'Tolerance for early stopping (# of e
 flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 
 # Load data
-adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
+#adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
+adj = sp.load_npz('data/normadj.npz')
+features = sp.load_npz('data/normfeatures.npz')
+y_train = np.load('data/y_train.npy')
+y_val = np.load('data/y_val.npy')
+y_test = np.load('data/y_test.npy')
+train_mask = np.load('data/train_mask.npy')
+val_mask = np.load('data/val_mask.npy')
+test_mask = np.load('data/test_mask.npy')
+all_labels = np.load('data/labels.npy')
 
 # Some preprocessing
 features = preprocess_features(features)
