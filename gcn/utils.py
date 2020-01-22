@@ -22,99 +22,16 @@ def sample_mask(idx, l):   ###### lets think about it layer!! what is mask and w
 
 
 def load_data(dataset_str):
-    """
-    Loads input data from gcn/data directory
-
-    ind.dataset_str.x => the feature vectors of the training instances as scipy.sparse.csr.csr_matrix object;
-    ind.dataset_str.tx => the feature vectors of the test instances as scipy.sparse.csr.csr_matrix object;
-    ind.dataset_str.allx => the feature vectors of both labeled and unlabeled training instances
-        (a superset of ind.dataset_str.x) as scipy.sparse.csr.csr_matrix object;
-    ind.dataset_str.y => the one-hot labels of the labeled training instances as numpy.ndarray object;
-    ind.dataset_str.ty => the one-hot labels of the test instances as numpy.ndarray object;
-    ind.dataset_str.ally => the labels for instances in ind.dataset_str.allx as numpy.ndarray object;
-    ind.dataset_str.graph => a dict in the format {index: [index_of_neighbor_nodes]} as collections.defaultdict
-        object;
-    ind.dataset_str.test.index => the indices of test instances in graph, for the inductive setting as list object.
-
-    All objects above must be saved using python pickle module.
-
-    :param dataset_str: Dataset name
-    :return: All data input files loaded (as well the training/test data).
-    """
-    names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
-    objects = []
-    for i in range(len(names)):
-        with open("data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
-            if sys.version_info > (3, 0):
-                objects.append(pkl.load(f, encoding='latin1'))
-            else:
-                objects.append(pkl.load(f))
-
-    x, y, tx, ty, allx, ally, graph = tuple(objects)
-    test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
-    test_idx_range = np.sort(test_idx_reorder)
-
-    if dataset_str == 'citeseer':
-        # Fix citeseer dataset (there are some isolated nodes in the graph)
-        # Find isolated nodes, add them as zero-vecs into the right position
-        test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
-        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-        tx_extended[test_idx_range-min(test_idx_range), :] = tx
-        tx = tx_extended
-        ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
-        ty_extended[test_idx_range-min(test_idx_range), :] = ty
-        ty = ty_extended
-        
-    if dataset == 'nell.0.001':
-        # Find relation nodes, add them as zero-vecs into the right position
-        test_idx_range_full = range(allx.shape[0], len(graph))
-        isolated_node_idx = np.setdiff1d(test_idx_range_full, test_idx_reorder)
-        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-        tx_extended[test_idx_range-allx.shape[0], :] = tx
-        tx = tx_extended
-        ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
-        ty_extended[test_idx_range-allx.shape[0], :] = ty
-        ty = ty_extended
-
-        features = sp.vstack((allx, tx)).tolil()
-        features[test_idx_reorder, :] = features[test_idx_range, :]
-
-        idx_all = np.setdiff1d(range(len(graph)), isolated_node_idx)
-
-        if not os.path.isfile("data/planetoid/{}.features.npz".format(dataset)):
-            print("Creating feature vectors for relations - this might take a while...")
-            features_extended = sp.hstack((features, sp.lil_matrix((features.shape[0], len(isolated_node_idx)))),
-                                          dtype=np.int32).todense()
-            features_extended[isolated_node_idx, features.shape[1]:] = np.eye(len(isolated_node_idx))
-            features = sp.csr_matrix(features_extended)
-            print("Done!")
-            save_sparse_csr("data/planetoid/{}.features".format(dataset), features)
-        else:
-            features = load_sparse_csr("data/planetoid/{}.features.npz".format(dataset))
-
-        adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
-
-    #features = sp.vstack((allx, tx)).tolil() # convert it to list of lists! features dim: the number of samples * the number of full dimensions! but the matrix is sparse so most of the elements of dims are zero! each list is a vector of indexes which indicates the indices of nonzero columns! so I still don't know the input_dim and what is features[2][1]
-    #features[test_idx_reorder, :] = features[test_idx_range, :] #### I don't understand it at all!!!! it is changing the order
-    #adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
-
-    labels = np.vstack((ally, ty))
-    labels[test_idx_reorder, :] = labels[test_idx_range, :]
-
-    idx_test = test_idx_range.tolist()
-    idx_train = range(len(y))#### allx is both the labeled train data (a part of it is in x) and unlabeled training data! the first rows of allx are x! the number of labeled training data is len(y)! so from index 0 to len(y) we have labeled training data! 
-    idx_val = range(len(y), len(y)+500) #### we have 500 validation data! the 500 from the rest of labeled data are validation! 
-
-    train_mask = sample_mask(idx_train, labels.shape[0])
-    val_mask = sample_mask(idx_val, labels.shape[0])
-    test_mask = sample_mask(idx_test, labels.shape[0])
-
-    y_train = np.zeros(labels.shape)
-    y_val = np.zeros(labels.shape)
-    y_test = np.zeros(labels.shape)
-    y_train[train_mask, :] = labels[train_mask, :]
-    y_val[val_mask, :] = labels[val_mask, :]
-    y_test[test_mask, :] = labels[test_mask, :]
+    
+    adj = sp.load_npz('data/normadj.npz')
+    features = sp.load_npz('data/normfeatures.npz')
+    y_train = np.load('data/y_train.npy')
+    y_val = np.load('data/y_val.npy')
+    y_test = np.load('data/y_test.npy')
+    train_mask = np.load('data/train_mask.npy')
+    val_mask = np.load('data/val_mask.npy')
+    test_mask = np.load('data/test_mask.npy')
+    all_labels = np.load('data/labels.npy')
 
     return adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask
 
