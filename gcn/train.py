@@ -37,18 +37,22 @@ val_mask = np.load('data/cora/val_mask.npy')
 test_mask = np.load('data/cora/test_mask.npy')
 all_labels = np.load('data/cora/labels.npy')
 
+features = sparse_to_tuple(features)
+support = [sparse_to_tuple(adj)]
+
+
 # Some preprocessing
-features = preprocess_features(features)
+#features = preprocess_features(features)
 if FLAGS.model == 'gcn':
-    support = [preprocess_adj(adj)]
+    #support = [preprocess_adj(adj)]
     num_supports = 1
     model_func = GCN
 elif FLAGS.model == 'gcn_cheby':
-    support = chebyshev_polynomials(adj, FLAGS.max_degree)
+    #support = chebyshev_polynomials(adj, FLAGS.max_degree)
     num_supports = 1 + FLAGS.max_degree
     model_func = GCN
 elif FLAGS.model == 'dense':
-    support = [preprocess_adj(adj)]  # Not used
+    #support = [preprocess_adj(adj)]  # Not used
     num_supports = 1
     model_func = MLP
 else:
