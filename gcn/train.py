@@ -27,28 +27,31 @@ flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 
 # Load data
 #adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
-adj = sp.load_npz('data/normadj.npz')
-features = sp.load_npz('data/normfeatures.npz')
-y_train = np.load('data/y_train.npy')
-y_val = np.load('data/y_val.npy')
-y_test = np.load('data/y_test.npy')
-train_mask = np.load('data/train_mask.npy')
-val_mask = np.load('data/val_mask.npy')
-test_mask = np.load('data/test_mask.npy')
-all_labels = np.load('data/labels.npy')
+adj = sp.load_npz('data/nell/normadj.npz')
+features = sp.load_npz('data/nell/normfeatures.npz')
+y_train = np.load('data/nell/y_train.npy')
+y_val = np.load('data/nell/y_val.npy')
+y_test = np.load('data/nell/y_test.npy')
+train_mask = np.load('data/nell/train_mask.npy')
+val_mask = np.load('data/nell/val_mask.npy')
+test_mask = np.load('data/nell/test_mask.npy')
+all_labels = np.load('data/nell/labels.npy')
+
+features = sparse_to_tuple(features)
+support = [sparse_to_tuple(adj)]
 
 # Some preprocessing
-features = preprocess_features(features)
+#features = preprocess_features(features)
 if FLAGS.model == 'gcn':
-    support = [preprocess_adj(adj)]
+    #support = [preprocess_adj(adj)]
     num_supports = 1
     model_func = GCN
 elif FLAGS.model == 'gcn_cheby':
-    support = chebyshev_polynomials(adj, FLAGS.max_degree)
+    #support = chebyshev_polynomials(adj, FLAGS.max_degree)
     num_supports = 1 + FLAGS.max_degree
     model_func = GCN
 elif FLAGS.model == 'dense':
-    support = [preprocess_adj(adj)]  # Not used
+    #support = [preprocess_adj(adj)]  # Not used
     num_supports = 1
     model_func = MLP
 else:
