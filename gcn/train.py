@@ -57,10 +57,9 @@ placeholders = {
 
 # Create model
 model = model_func(placeholders, input_dim=features[2][1], logging=True)
-
+print(model.summary())
 # Initialize session
 sess = tf.Session()
-
 
 # Define model evaluation function
 def evaluate(features, support, labels, mask, placeholders):
