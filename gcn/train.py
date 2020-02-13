@@ -57,7 +57,6 @@ placeholders = {
 
 # Create model
 model = model_func(placeholders, input_dim=features[2][1], logging=True)
-print(model.summary())
 # Initialize session
 sess = tf.Session()
 
