@@ -68,6 +68,13 @@ def evaluate(features, support, labels, mask, placeholders):
     return outs_val[0], outs_val[1], (time.time() - t_test)
 
 
+############# predicte__ is added new ###########
+def predict__(features, support, labels, mask, placeholders):
+    t_test = time.time()
+    feed_dict_val = construct_feed_dict(features, support, labels, mask, placeholders)
+    predictions_ = sess.run(model.predict, feed_dict=feed_dict_val)
+    return predictions_
+
 # Init variables
 sess.run(tf.global_variables_initializer())
 
@@ -103,3 +110,7 @@ print("Optimization Finished!")
 test_cost, test_acc, test_duration = evaluate(features, support, y_test, test_mask, placeholders)
 print("Test set results:", "cost=", "{:.5f}".format(test_cost),
       "accuracy=", "{:.5f}".format(test_acc), "time=", "{:.5f}".format(test_duration))
+
+#### prediction###### #### added new 
+predicted_X = predict__(features, support, labels, mask, placeholders)
+np.save('predicted_pubmed.npy', predicted_X)
